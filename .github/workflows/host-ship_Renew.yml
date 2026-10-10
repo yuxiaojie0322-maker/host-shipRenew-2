@@ -30,7 +30,7 @@ jobs:
       - name: 安装系统底层依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb curl
+          sudo apt-get install -y xvfb curl xdotool
           wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i /tmp/chrome.deb || sudo apt-get install -f -y
 
@@ -39,18 +39,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r private-scripts/host-ship/requirements.txt
 
-      - name: 启用 WARP 网络 (防止面板阻断 GitHub IP)
-        uses: fscarmen/warp-on-actions@v1.3
-        with:
-          stack: dual
-          mode: client
-
       - name: 执行 Host-Ship 自动续签
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           PANEL_USER: ${{ secrets.PANEL_USER }}
           PANEL_PASS: ${{ secrets.PANEL_PASS }}
+          PANEL_COOKIE: ${{ secrets.PANEL_COOKIE || vars.PANEL_COOKIE }}
+          PROXY_NODE: ${{ secrets.PROXY_NODE || vars.PROXY_NODE || secrets.NODE_LINK || vars.NODE_LINK || secrets.SINGBOX_CONFIG || vars.SINGBOX_CONFIG }}
         run: python -u private-scripts/host-ship/main.py
 
       - name: 归档运行截图
